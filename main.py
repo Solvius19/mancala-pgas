@@ -1,3 +1,5 @@
+global current_player
+global board
 
 board = [0,4,4,4,4,4,4,0,4,4,4,4,4,4]
 current_player = 1
@@ -19,11 +21,11 @@ def print_board():
     print("\n-------------------------------")
     print("      1   2   3   4   5   6")
 
-def is_valid_move(player, number):
-    if player == 1:
-        return any(board[i] > 0 for i in range(1, 7))
+def is_valid_move(pit):
+    if current_player == 1:
+        return any(board[pit] > 0 for i in range(1, 7))
     else:
-        return any(board[i] > 0 for i in range(8, 14))
+        return any(board[pit] > 0 for i in range(8, 14))
 
 def move_stones(player, pit):
     stones = board[pit]
@@ -37,17 +39,56 @@ def move_stones(player, pit):
         board[index] += 1
         stones -= 1
 
-def take_turn(player):
-    if player == 1:
+def take_turn():
+    global current_player
+    possible_moves = ""
+    if current_player == 1:
         print("Player 1's Turn!")
+        for i in range(1, 7):
+            if is_valid_move(i):
+                possible_moves += str(i) + " "
     else:
         print("Player 2's Turn!")
+        for i in range(8, 14):
+            if is_valid_move(i):
+                possible_moves += str(i) + " "
 
-    while (is_valid_move(player) == True):
+    print("Valid Moves:", possible_moves)
+
+    while True:
+        try:
+            choice = int(input("Choose a pocket: "))
+            if current_player == 1:
+                if 1 <= choice <= 6:
+                    move_stones(1, choice)
+                else:
+                    print("Invalid choice. Please choose a pocket from 1 to 6.")
+                    continue
+            else:
+                if 8 <= choice <= 13:
+                    move_stones(2, choice)
+                else:
+                    print("Invalid choice. Please choose a pocket from 8 to 13.")
+                    continue
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
+        break
+        current_player = 3 - current_player
+
+def game_over():
+    if sum(board[1:7]) == 0 or sum(board[8:14]) == 0:
+        return True
+    return False
+
+def game_loop():
+    while not game_over():
         print_board()
-    print("Valid Moves: ", end="")
+        take_turn()
+    print_board()
+    print("Game Over!")
 
-    return index
+def game_winner():
+    print_board()
 
-
-print_board()
+game_loop()
