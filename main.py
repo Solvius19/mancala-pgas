@@ -12,7 +12,8 @@ def print_board():
     for i in range(13, 7, -1):
         numbers += str(board[i]) + "   "
     print("B:   ", numbers, end="   ")
-    print("\n    0                        0")
+    print("\n   ",str(board[0]),"                      ", str(board[7]))
+
 
     numbers = ""
     for i in range(1, 7):
@@ -27,16 +28,21 @@ def is_valid_move(pit):
     else:
         return any(board[pit] > 0 for i in range(8, 14))
 
-def move_stones(player, pit):
+def move_stones(pit):
+    global current_player
     stones = board[pit]
     board[pit] = 0
     index = pit
 
     while stones > 0:
         index = (index + 1) % 14
-        if (player == 1 and index == 7) or (player == 2 and index == 0):
-            continue
+        if board[index] == 0:
+            # opposite side code
         board[index] += 1
+        if stones == 1: # Accounts for Go Agains
+            if (current_player == 1 and index == 7) or (current_player == 2 and index == 0):
+                print("Go Again!")
+                take_turn()
         stones -= 1
 
 def take_turn():
@@ -60,13 +66,13 @@ def take_turn():
             choice = int(input("Choose a pocket: "))
             if current_player == 1:
                 if 1 <= choice <= 6:
-                    move_stones(1, choice)
+                    move_stones(choice)
                 else:
                     print("Invalid choice. Please choose a pocket from 1 to 6.")
                     continue
             else:
                 if 8 <= choice <= 13:
-                    move_stones(2, choice)
+                    move_stones(choice)
                 else:
                     print("Invalid choice. Please choose a pocket from 8 to 13.")
                     continue
@@ -74,7 +80,6 @@ def take_turn():
             print("Invalid input. Please enter a number.")
             continue
         break
-        current_player = 3 - current_player
 
 def game_over():
     if sum(board[1:7]) == 0 or sum(board[8:14]) == 0:
@@ -82,9 +87,11 @@ def game_over():
     return False
 
 def game_loop():
+    global current_player
     while not game_over():
         print_board()
         take_turn()
+        current_player = 3 - current_player
     print_board()
     print("Game Over!")
 
