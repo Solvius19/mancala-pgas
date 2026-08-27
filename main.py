@@ -19,7 +19,6 @@ def print_board():
     print("B:   ", numbers, end="   ")
     print("\n   ",str(board[0]),"                      ", str(board[7]))
 
-
     numbers = ""
     for i in range(1, 7):
         numbers += str(board[i]) + "   "
@@ -52,14 +51,14 @@ def move_stones(pit):
 
     if board[index] == 1:
         opposite_index = 14 - index
-        if current_player == 1 and 1 <= index <= 6:
-            if board[opposite_index] > 0:
-                board[7] += board[opposite_index] + board[index]
-        elif current_player == 2 and 8 <= index <= 13:
-            if board[opposite_index] > 0:
-                board[0] += board[opposite_index] + board[index]
-        board[opposite_index] = 0
-        board[index] = 0
+        if current_player == 1 and 1 <= index <= 6 and board[opposite_index] > 0:
+            board[7] += board[opposite_index] + board[index]
+            board[opposite_index] = 0
+            board[index] = 0
+        elif current_player == 2 and 8 <= index <= 13 and board[opposite_index] > 0:
+            board[0] += board[opposite_index] + board[index]
+            board[opposite_index] = 0
+            board[index] = 0
 
 def take_turn():
     global current_player
@@ -110,16 +109,26 @@ def game_loop():
         take_turn()
         if not extra_turn:
             current_player = 3 - current_player
+        else:
+            print("Go Again!")
         extra_turn = False
     print_board()
     print("Game Over!")
 
 def calculate_winner():
-    if sum(player1_pits) == 0:
-        if (sum(player2_pits) + board[0]) < board[7]:
-            print("Player 1 wins!")
-    if sum(player1_pits) == 0:
-        if (sum(player1_pits) + board[7]) < board[0]:
-            print("Player 2 wins!")
+    board[7] += sum(board[player1_pits])
+    board[0] += sum(board[player2_pits])
+
+    for i in player1_pits:
+        board[i] = 0
+    for i in player2_pits:
+        board[i] = 0
+
+    if board[7] > board[0]:
+        print("Player 1 wins!")
+    elif board[0] > board[7]:
+        print("Player 2 wins!")
+    else:
+        print("It's a tie!")
 
 game_loop()
