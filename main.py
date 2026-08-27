@@ -99,6 +99,7 @@ def take_turn():
 
 def game_over():
     if sum(board[1:7]) == 0 or sum(board[8:14]) == 0:
+        calculate_winner()
         return True
     return False
 
@@ -114,6 +115,11 @@ def game_loop():
     print("Game Over!")
 
 def calculate_winner():
-    # implement function here
+    if sum(player1_pits) == 0:
+        if (sum(player2_pits) + board[0]) < board[7]:
+            print("Player 1 wins!")
+    if sum(player1_pits) == 0:
+        if (sum(player1_pits) + board[7]) < board[0]:
+            print("Player 2 wins!")
 
 game_loop()
