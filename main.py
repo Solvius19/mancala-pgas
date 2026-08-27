@@ -4,6 +4,11 @@ global board
 board = [0,4,4,4,4,4,4,0,4,4,4,4,4,4]
 current_player = 1
 
+extra_turn = False
+
+player1_pits = range(1,7)
+player2_pits = range(8,14)
+
 def print_board():
     numbers = ""
     print("      13  12  11  10  9   8")
@@ -24,38 +29,49 @@ def print_board():
 
 def is_valid_move(pit):
     if current_player == 1:
-        return any(board[pit] > 0 for i in range(1, 7))
+        return pit in player1_pits and board[pit] > 0
     else:
-        return any(board[pit] > 0 for i in range(8, 14))
+        return pit in player2_pits and board[pit] > 0
 
 def move_stones(pit):
-    global current_player
+    global current_player, extra_turn
     stones = board[pit]
     board[pit] = 0
     index = pit
 
     while stones > 0:
         index = (index + 1) % 14
-        if board[index] == 0:
-            # opposite side code
+        if current_player == 1 and index == 0:
+            continue
+        if current_player == 2 and index == 7:
+            continue
         board[index] += 1
-        if stones == 1: # Accounts for Go Agains
-            if (current_player == 1 and index == 7) or (current_player == 2 and index == 0):
-                print("Go Again!")
-                take_turn()
         stones -= 1
+
+    extra_turn = (current_player == 1 and index == 7) or (current_player == 2 and index == 0)
+
+    if board[index] == 1:
+        opposite_index = 14 - index
+        if current_player == 1 and 1 <= index <= 6:
+            if board[opposite_index] > 0:
+                board[7] += board[opposite_index] + board[index]
+        elif current_player == 2 and 8 <= index <= 13:
+            if board[opposite_index] > 0:
+                board[0] += board[opposite_index] + board[index]
+        board[opposite_index] = 0
+        board[index] = 0
 
 def take_turn():
     global current_player
     possible_moves = ""
     if current_player == 1:
         print("Player 1's Turn!")
-        for i in range(1, 7):
+        for i in player1_pits:
             if is_valid_move(i):
                 possible_moves += str(i) + " "
     else:
         print("Player 2's Turn!")
-        for i in range(8, 14):
+        for i in player2_pits:
             if is_valid_move(i):
                 possible_moves += str(i) + " "
 
@@ -87,15 +103,17 @@ def game_over():
     return False
 
 def game_loop():
-    global current_player
+    global current_player, extra_turn
     while not game_over():
         print_board()
         take_turn()
-        current_player = 3 - current_player
+        if not extra_turn:
+            current_player = 3 - current_player
+        extra_turn = False
     print_board()
     print("Game Over!")
 
-def game_winner():
-    print_board()
+def calculate_winner():
+    # implement function here
 
 game_loop()
