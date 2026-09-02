@@ -1,8 +1,10 @@
 global current_player
 global board
+global gameOver
 
 board = [0,4,4,4,4,4,4,0,4,4,4,4,4,4]
 current_player = 1
+gameOver = False
 
 extra_turn = False
 
@@ -95,16 +97,18 @@ def take_turn():
             print("Invalid input. Please enter a number.")
             continue
         break
+    game_over()
 
 def game_over():
+    global gameOver
     if sum(board[1:7]) == 0 or sum(board[8:14]) == 0:
         calculate_winner()
-        return True
-    return False
+        gameOver = True
+    gameOver = False
 
 def game_loop():
     global current_player, extra_turn
-    while not game_over():
+    while not gameOver:
         print_board()
         take_turn()
         if not extra_turn:
@@ -116,8 +120,9 @@ def game_loop():
     print("Game Over!")
 
 def calculate_winner():
-    board[7] += sum(board[player1_pits])
-    board[0] += sum(board[player2_pits])
+    # Change logic so moves the stones before it adds everything...
+    board[7] += sum(board[1:7])
+    board[0] += sum(board[8:14])
 
     for i in player1_pits:
         board[i] = 0
